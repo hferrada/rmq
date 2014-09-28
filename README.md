@@ -8,12 +8,12 @@ Authors:
 	hferrada@dcc.uchile.cl, gnavarro@dcc.uchile.cl
 
 Description:
-	This is a RMQ compressed data structure. The implementation is based on the
+	This is an RMQ compressed data structure. The implementation is based on the
 	method of Fischer and Heun [1]. The tree representation is a light version of
 	Range Min-Max Tree of Sadakane and Navarro [2].
 	In order to reduce the size, our rmq uses a simplified version of the Range 
 	min-max tree of Navarro and Sadakane [2], we only used the backward minimum 
-	array to store the ranges (not maximum and only for backward). You can set 
+	array to store the ranges (not maximum and only for forward). You can set 
 	"true" the variables "RMQRMM64::TRACE" and "RMQRMM64::RUNTEST" to see the 
 	details. Also we included an small example ("test.cpp") to show how to use 
 	it and included an small experiment for the time. This works only for 64 bits 
