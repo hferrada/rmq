@@ -1,7 +1,7 @@
 rmq library
 ===========
 
-This code creates a data structure to compute the RMQ(i,j) on an aray of integers.
+This code creates a data structure to compute the RMQ(i,j) on an array of integers.
 
 Authors: 
 	Hector Ferrada and Gonzalo Navarro
