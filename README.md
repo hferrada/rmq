@@ -1,7 +1,8 @@
 rmq library
 ===========
 
-This code creates a data structure to compute the RMQ(i,j) on an array of integers.
+This code creates a data structure to compute, in constant time, the RMQ(i,j) on an array 
+of integers. The size for array of considerable length is around of 2.2n bits.
 
 Authors: 
 	Hector Ferrada and Gonzalo Navarro
@@ -41,8 +42,8 @@ References:
 	references include the two papers above. Later, it will appear another 
 	publication to replace these ones.
 
-[1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for range minimum 
-queries on static arrays. SIAM '11.
+[1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for
+range minimum queries on static arrays. SIAM Journal on Computing, 40(2):465–492, 2011.
 
-[2]. K. Sadakane and G. Navarro. Fully-functional succinct trees. In Proceedings of 
-the Twenty-First Annual ACM-SIAM Symposium on Discrete Algorithms, SODA '10.
+[2]. K. Sadakane and G. Navarro. Fully-Functional Static and Dynamic Succinct Trees. 
+ACM Transactions on Algorithms 10(3):article 16, 2014
