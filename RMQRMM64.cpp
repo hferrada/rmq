@@ -9,7 +9,7 @@
 
 bool RMQRMM64::TRACE = false;
 bool RMQRMM64::RUNTEST = false;
-uint RMQRMM64::TEST = 1000000;
+uint RMQRMM64::TEST = 1000;
 
 RMQRMM64::RMQRMM64(char *fileName){
 	loadDS(fileName);
@@ -830,7 +830,7 @@ bool RMQRMM64::binBwd_search(ulong end, long int *d, ulong* pos){
 
 	mini = getNum64(TMinB, node*lgMAX_B, lgMAX_B);
 	if (target > mini){
-		uint aLeaf = node>>1;
+		ulong aLeaf = node>>1;
 		target -= getNum64(TSBlock, (aLeaf+1)*lgMAX_SupB, lgMAX_SupB) - getNum64(TSBlock, aLeaf*lgMAX_SupB, lgMAX_SupB);
 		if(readBit64(Bfull, aLeaf)){
 			if(TRBlock[aLeaf])
@@ -861,7 +861,8 @@ bool RMQRMM64::binBwd_search(ulong end, long int *d, ulong* pos){
 }
 
 bool RMQRMM64::bwd_Lastblock(ulong x, long int *d, ulong* pos){
-	uint b, rest, q, len = x;
+	uint rest, q;
+	ulong b, len = x;
 	long int tar = *d;
 
 	if (nBin)
@@ -1036,7 +1037,8 @@ ulong RMQRMM64::computeLeavesOfNode(ulong node, ulong dist){
 // search the minimum in a block (sequential search)
 void RMQRMM64::search_min_block(ulong x1, ulong x2, long int *min, long int *curSum, ulong *position){
 	int Min, sum, auxMin;
-	uint b, rest, q, len = x2-x1+1, posMin = *position;
+	uint rest, q;
+	ulong b, len = x2-x1+1, posMin = *position;
 
 	Min = *min;
 	sum = *curSum;
@@ -1847,7 +1849,7 @@ void RMQRMM64::test_rmqi(){
 
 	cout << "RMQRMM64::test_rmqi..." << endl;
 	i=0;
-	uint sumTest = nP/2;
+	ulong sumTest = nP/2;
 	while(i<nP){
 		while(i<nP && readBit64(P, i)==0)
 			i++;
