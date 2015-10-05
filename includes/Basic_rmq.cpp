@@ -1,7 +1,6 @@
 #include "Basic_rmq.h"
 
-// namespace of Document Retrieval Framework
-namespace drf64 {
+namespace rmqrmm {
 	// sets bit i-ht in e (left to right)
 	void setBit64(ulong *e, ulong i) {
 		e[i>>BW64] |= (maskW63>>(i%W64));
@@ -149,4 +148,4 @@ namespace drf64 {
 				__popcount_tab[(x >> 32) & 0xffUL] + __popcount_tab[(x >> 40) & 0xffUL] +
 				__popcount_tab[(x >> 48) & 0xffUL] + __popcount_tab[(x >> 56) & 0xffUL];
 	}
-} /* namespace drf64 */
+} /* namespace rmqrmm */

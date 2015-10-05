@@ -1,9 +1,16 @@
+/*
+ * RMQRMM64.h
+ *
+ *  Created on: 16-06-2014
+ *      Author: hector
+ */
+
 #ifndef RMQRMM64_H_
 #define RMQRMM64_H_
 
 #include "Basic_rmq.h"
 using namespace std;
-using namespace drf64;
+using namespace rmqrmm;
 
 #define Srmq 256	// size of blocks (s bits each one), (power of 2 >= W)
 #define PotSrmq 8	// power for block = log(Srmq)
@@ -97,8 +104,7 @@ const uchar T_BCK_D[][8] = {
 };
 
 class RMQRMM64 {
-public:
-	ulong nP;				// Length of sequence P (n parentheses and n/2 nodes)
+private:
 	ulong nW;				// number of words to store P
 	ulong *P;				// sequence of 2n' balanced parentheses, which represents a tree with n/2 nodes.
 
@@ -131,7 +137,6 @@ public:
 	ulong *Bfull;			// this indicates the leaves which contain in TRBlock the numbers -256 or 256
 	uchar *TPMinB;			// Table of minimum positions for each leaf. values between 0 and 255
 	ulong *TMinB;			// Table of leaf minimum
-	ulong *LastNode;		// this array, of length h, stores the index of the last node in each of the tree.
 
 	uint MAX_B;				// the greater global excess for all block.
 	uint lgMAX_B;
@@ -139,6 +144,9 @@ public:
 	int MIN_BCK;			// the lowest value for backward interval
 
 	uint sizeRMM;			// in bytes
+
+public:
+	ulong nP;				// Length of sequence P (n parentheses and n/2 nodes)
 
 	static bool TRACE;		// true: print all details for console
 	static bool RUNTEST;
@@ -164,19 +172,6 @@ public:
 	// give the excess from 0 to pos
 	long int sumAtPos(long int pos);
 	void test_sumAtPos();
-
-	// return true and the position 'pos', where pos is the first position pos >= ini, which sum from ini to pos is d. If not found then return false
-	bool bwd_search(ulong x, long int *d, ulong *pos);
-	void test_bwd_search();
-
-	// return true and the position pos <= end that the sum from pos to end is d. If not found then return false
-	bool binBwd_search(ulong end, long int *d, ulong* pos);
-
-	// return true and the position 'pos' in the last block, where the sum (in P) from ini to pos is d. If not found then return false
-	bool bwd_Lastblock(ulong end, long int *d, ulong* pos);
-
-	// return true and the position 'pos', pos < ini+len, where the sum from ini to ini+len is d. If not found then return false
-	bool bwd_block(ulong x, long int *d, ulong* pos);
 
 	// give the excess of the internal node 'node=preorder+1' that has a distance 'dist' to the tree's depth
 	long int computeSumOfNode(ulong node, ulong dist);

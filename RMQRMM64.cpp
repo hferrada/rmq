@@ -18,7 +18,6 @@ RMQRMM64::RMQRMM64(char *fileName){
 		test_sumAtPos();
 		test_rank_1();
 		test_select_1();
-		test_bwd_search();
 		if (leaves>0) test_rmqi();
 	}
 }
@@ -33,12 +32,12 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 	sizeRMM += 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);	// size for variables
 
 	nP = (len+1)<<1;
-	ulong sizeDS = nP >> BW64;
+	ulong lenP = nP >> BW64;
 	if (nP % W64)
-		sizeDS++;
-	P = new ulong[sizeDS];
-	sizeRMM += sizeDS*sizeof(ulong);
-	if (TRACE) cout << " ** size of topology " << sizeDS*sizeof(ulong) << " Bytes" << endl;
+		lenP++;
+	P = new ulong[lenP];
+	sizeRMM += lenP*sizeof(ulong);
+	if (TRACE) cout << " ** size of topology " << lenP*sizeof(ulong) << " Bytes" << endl;
 
 	ulong pos = 2;
 	ulong i;
@@ -89,7 +88,7 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 
 	if (TRACE){
 		cout << " BP sequence, P[0.." << nP-1 << "]" << endl;
-		for (pos=0; pos<sizeDS; pos++)
+		for (pos=0; pos<lenP; pos++)
 			printBitsUlong(P[pos]);
 		cout << endl;
 	}
@@ -115,13 +114,7 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 	this->h = ceilingLog64(this->leaves, 2);
 	this->firstLeaf = (ulong)pow(2, (double)h) - 1;	// the left-most leaf
 
-	LastNode = new ulong[h];
-	// size of table LastNode[1..h]
-	sizeDS =  h*sizeof(ulong);
-	sizeRMM += sizeDS;
-
 	if (TRACE){
-		cout << " ** size of table LastNode[1..h] " << sizeDS << " Bytes" << endl;
 		ulong i;
 		cout << "___________________________________________________________" << endl;
 		cout << "P_bin :";
@@ -151,7 +144,6 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 		test_sumAtPos();
 		test_rank_1();
 		test_select_1();
-		test_bwd_search();
 		if (leaves>0) test_rmqi();
 	}
 }
@@ -315,7 +307,7 @@ void RMQRMM64::createMinMaxTree(){
 	if (cantIN)
 		delete [] Aux_Bkwd_MinIN;
 
-	cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
+	if (TRACE) cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
 }
 
 void RMQRMM64::createTables(){
@@ -420,7 +412,6 @@ void RMQRMM64::createTables(){
 	for (i=0; i<h; i++){
 		cont = (ulong)pow(2, (double)(i));
 		sum += cont;
-		LastNode[i] = sum - 1;
 	}
 
 	if (leaves){
@@ -454,7 +445,11 @@ void RMQRMM64::createTables(){
 		MAX_B = 0;
 		lgMAX_SupB = 1;
 	}
-	lgMAX_B = ceilingLog64(MAX_B+1, 2);
+
+	if(MAX_B == 0)
+		lgMAX_B = 1;
+	else
+		lgMAX_B = ceilingLog64(MAX_B+1, 2);
 
 	cont = leaves*lgMAX_B/W64;
 	if ((leaves*lgMAX_B)%W64)
@@ -508,10 +503,6 @@ void RMQRMM64::createTables(){
 		cout << "TMinB[1.." <<leaves<< "]..." << endl;
 		for (i=0; i<leaves; i++)
 			cout << getNum64(TMinB, i*lgMAX_B, lgMAX_B) << " ";
-		cout << endl;
-		cout << "Table of last index node per level..." << endl;
-		for (i=0; i<h; i++)
-			cout << LastNode[i] << " ";
 		cout << endl;
 	}
 }
@@ -711,265 +702,6 @@ long int RMQRMM64::sumAtPos(long int pos){
 // *******************************************************************************
 // ****************************** TREE OPERATIONS ********************************
 
-bool RMQRMM64::bwd_search(ulong x, long int *d, ulong *pos){
-	if(x < nBin)
-		return binBwd_search(x, d, pos);
-	else{
-		if (bwd_Lastblock(x, d, pos))
-			return true;
-		else
-			// here *pos have the sum from nBin to x
-			if (nBin)
-				return binBwd_search(nBin-1, d, pos);	// special case with d updated and from the last bit (that is nBin-1) in the binary tree
-			else return false;
-	}
-}
-
-bool RMQRMM64::binBwd_search(ulong end, long int *d, ulong* pos){
-	ulong node = end/Srmq;				// block for 'end'
-	ulong j, height, dist = 1;
-	long int rb, q, mini;
-
-	// [1]- Check if the answer is inside the block...
-	if (bwd_block(end, d, pos))
-		return true;
-	else{
-		if (!node)
-			return false;
-	}
-
-	long int target = *d;
-	// [2]- We looking for between the lower leaves (in the same super block) the target 'target'
-	if (node%2){	// node is a right leaf ?
-		node--;
-		mini = getNum64(TMinB, node*lgMAX_B, lgMAX_B);
-		if (target > mini){
-			if(readBit64(Bfull, (node>>1))){
-				if(TRBlock[node>>1])
-					target -= Srmq;
-				else
-					target += Srmq;
-			}else
-				target -= TRBlock[node>>1]<<1;
-		}else{
-			if (target == mini)
-				*pos = ((node+1)<<PotSrmq) - TPMinB[node] - 1;
-			else{
-				node++;
-				for (rb=N8W64-1, j=0; j<N8Srmq; j++){
-					q = (P[((node<<PotSrmq)-1-j*BSrmq)>>BW64] & RMMMasks[rb]) >> (W64m8-BSrmq*rb);
-					if (target > T_MIN_BCK[q]){
-						target -= T_SUM_BLOCK[q];
-					}else{
-						*pos = (node<<PotSrmq)-j*BSrmq-T_BCK_D[q][target-1]-1;
-						return true;
-					}
-					if (rb == 0) rb=N8W64-1;
-					else rb--;
-				}
-				node--;
-			}
-			return true;
-		}
-	}
-	if (node == 0){
-		*d = target;
-		return false;
-	}
-
-	// [3]- We climb recomputing the target and looking for the node that contains this target.
-	height = h-2;
-	if (node < leavesBottom){
-		if (node == leavesBottom-1)
-			node = cantIN-1;
-		else{
-			node += firstLeaf;
-			height++;
-		}
-	}else
-		node += cantIN-leavesBottom;
-	node>>= 1;
-	node--;
-	dist++;
-	mini = getNum64(Bkwd_MinIN, node*lgMIN_BCK, lgMIN_BCK);
-	while (target > mini){
-		target -= computeSumOfNode(node+1, dist);
-		if (node%2==0)
-			node--;
-		else{
-			if (node-1 == LastNode[height-1]){
-				*d = target;
-				return false;
-			}
-			node>>=1;				// go to my uncle
-			node--;
-			height--;
-			dist++;
-		}
-		mini = getNum64(Bkwd_MinIN, node*lgMIN_BCK, lgMIN_BCK);
-	}
-
-	// [4]- We move down recomputing the target and reach to the correct leaf that has the target found.
-	node++;
-	node<<= 1;
-	dist--;
-	while (node < cantIN){
-		mini = getNum64(Bkwd_MinIN, node*lgMIN_BCK, lgMIN_BCK);
-		if (target > mini){
-			target -= computeSumOfNode(node+1, dist);
-			node--;
-		}
-		node++;
-		node<<= 1;
-		dist--;
-	}
-	if (node > firstLeaf)						// at this point 'node' is a leaf, node >= firstLeaf
-		node -= firstLeaf;
-	else
-		node += leavesBottom - cantIN;
-
-	mini = getNum64(TMinB, node*lgMAX_B, lgMAX_B);
-	if (target > mini){
-		ulong aLeaf = node>>1;
-		target -= getNum64(TSBlock, (aLeaf+1)*lgMAX_SupB, lgMAX_SupB) - getNum64(TSBlock, aLeaf*lgMAX_SupB, lgMAX_SupB);
-		if(readBit64(Bfull, aLeaf)){
-			if(TRBlock[aLeaf])
-				target += Srmq;
-			else
-				target -= Srmq;
-		}else
-			target += TRBlock[aLeaf]<<1;
-		return bwd_block((node<<PotSrmq)-1, &target, pos);	// here is the target
-	}else{
-		if (target == mini)
-			*pos = ((node+1)<<PotSrmq) - TPMinB[node] -1;
-		else{
-			for (j=0, rb=N8W64-1; j<N8Srmq; j++){
-				q = (P[(((node+1)<<PotSrmq)-1-j*BSrmq)>>BW64] & RMMMasks[rb]) >> (W64m8-BSrmq*rb);
-				if (target > T_MIN_BCK[q])
-					target -= T_SUM_BLOCK[q];
-				else{
-					*pos = ((node+1)<<PotSrmq)-j*BSrmq-T_BCK_D[q][target-1]-1;
-					return true;
-				}
-				if (rb == 0) rb=N8W64-1;
-				else rb--;
-			}
-		}
-	}
-	return true;
-}
-
-bool RMQRMM64::bwd_Lastblock(ulong x, long int *d, ulong* pos){
-	uint rest, q;
-	ulong b, len = x;
-	long int tar = *d;
-
-	if (nBin)
-		len = x%nBin+1;
-	else
-		len++;
-
-	while(len > BrmqMOne){
-		b = x>>BW64;
-		rest = (x+1)%W64;
-		if (b == (x-BrmqMOne)>>BW64)			// x and (x-7) are in the same word...
-			q = (P[b] >> (W64-rest)) & 0xff;
-		else
-			q = ((P[b-1] << rest) | (P[b] >> (W64-rest))) & 0xff;
-
-		if (tar > T_MIN_BCK[q])
-			tar -= T_SUM_BLOCK[q];
-		else{
-			// here is the target...
-			*pos = x-T_BCK_D[q][tar-1];
-			return true;
-		}
-		len -= BSrmq;
-		x -= BSrmq;
-	}
-	if (len){
-		// check last segment (len < 8) bit by bit...
-		int sum;
-		if (readBit64(P,x)){
-			sum = 1;
-			if (sum == tar){
-				*pos = x;
-				return true;
-			}
-		}else sum = -1;
-		len--;
-		x--;
-		while (len){
-			if(readBit64(P,x)){
-				sum++;
-				if (sum == tar){
-					*pos = x;
-					return true;
-				}
-			}else sum--;
-			len--;
-			x--;
-		}
-		*d = tar-sum;;
-	}else
-		*d = tar;
-
-	return false;
-}
-
-// return true and the position 'pos', pos < ini+len, where the sum from ini to ini+len is d. If not found then return false
-bool RMQRMM64::bwd_block(ulong x, long int *d, ulong* pos){
-	ulong b, rest, q, len = (x%Srmq)+1;
-	long int tar = *d;
-
-	while(len > BrmqMOne){
-		b = x>>BW64;
-		rest = (x+1)%W64;
-		if (b == (x-BrmqMOne)>>BW64)				// x and (x-BrmqMOne) are in the same word...
-			q = (P[b] >> (W64-rest)) & 0xff;
-		else
-			q = ((P[b-1] << rest) | (P[b] >> (W64-rest))) & 0xff;
-
-		if (tar > T_MIN_BCK[q])
-			tar -= T_SUM_BLOCK[q];
-		else{
-			// here is the target...
-			*pos = x-T_BCK_D[q][tar-1];  // target is between 0 and 7 !!
-			return true;
-		}
-		len -= BSrmq;
-		x -= BSrmq;
-	}
-	if (len){
-		// check last segment (len < 8) bit by bit...
-		int sum;
-		if (readBit64(P,x)){
-			sum = 1;
-			if (sum == tar){
-				*pos = x;
-				return true;
-			}
-		}
-		else sum = -1;
-		while (len>1){
-			x--;
-			if(readBit64(P,x)){
-				sum++;
-				if (sum == tar){
-					*pos = x;
-					return true;
-				}
-			}else sum--;
-			len--;
-		}
-		*d = tar-sum;
-	}else
-		*d = tar;
-
-	return false;
-}
-
 // give the excess of the internal node 'node=preorder+1' that has a distance 'dist' to the tree's depth
 long int RMQRMM64::computeSumOfNode(ulong node, ulong dist){
 	long int sum = 0;
@@ -1098,6 +830,7 @@ ulong RMQRMM64::rmqi(ulong i, ulong j){
 	return 0;
 }
 
+// return the position of the open parenthesis closet to the root between i and j
 ulong RMQRMM64::rmqi_rmm(ulong x1, ulong x2, long int *min, long int *currSum, ulong posMin){
 	ulong lLeaf, aLeaf, node, nodeMin;
 	ulong height, group, distNodeMin, dist = 1;
@@ -1319,22 +1052,7 @@ ulong RMQRMM64::rmqi_rmm(ulong x1, ulong x2, long int *min, long int *currSum, u
 }
 
 ulong RMQRMM64::queryRMQ(ulong i, ulong j){
-	if (i<j && j<nP){
-		ulong x1 = select_1(i+2);
-		ulong x2 = select_1(j+2);
-		ulong l1 = sumAtPos(x1);
-		ulong l2 = sumAtPos(x2);
-		if (l2 > l1){
-			long int d = l2-l1;
-			ulong pos;
-			if (bwd_search(x2-1, &d, &pos)){
-				if (x1 == pos)	 // is x1 lower ancestor of x2 ?
-					return i;
-			}
-		}
-		return rank_1(rmqi(x1,x2))-2;
-	}
-	return i;
+	return rank_1(rmqi(select_1(i+2),select_1(j+2)))-2;
 }
 
 uint RMQRMM64::getSize(){
@@ -1392,7 +1110,10 @@ void RMQRMM64::saveDS(char *fileName){
 	os.write((const char*)&lgMAX_SupB, sizeof(uint));
 	os.write((const char*)&lgMIN_BCK, sizeof(uint));
 	os.write((const char*)&MIN_BCK, sizeof(int));
+
 	ulong sizeDT = 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);
+	sizeDT +=  2*512 + 2048;											// size for T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[]
+	if(TRACE) cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeDT << " Bytes" << endl;
 
 	ulong size = nP >> BW64;
 	if (nP % W64)
@@ -1437,16 +1158,11 @@ void RMQRMM64::saveDS(char *fileName){
 	sizeDT += size*sizeof(ulong);
 	if(TRACE) cout << " .- TMinB[] " << size*sizeof(ulong) << " Bytes" << endl;
 
-	os.write((const char*)LastNode, h*sizeof(ulong));			// save LastNode[] = new ulong[h];
-	sizeDT += h*sizeof(ulong);
-	if(TRACE) cout << " .- LastNode[] " << h*sizeof(ulong) << " Bytes" << endl;
-
 	os.close();
 	cout << "   Total bytes saved from data structure: " << sizeDT << endl;
 }
 
 void RMQRMM64::loadDS(char *fileName){
-	sizeRMM = 2*512 + 2048;				// size for T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[]
 	cout << " Load data structure from " << fileName << endl;
 	ifstream is(fileName, ios::binary);
 
@@ -1498,7 +1214,9 @@ void RMQRMM64::loadDS(char *fileName){
 	}
 
 	// size for variables
-	sizeRMM += 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);
+	sizeRMM = 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);
+	sizeRMM += 2*512 + 2048;											// size for T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[]
+	if(TRACE) cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeRMM << " Bytes" << endl;
 
 	ulong sizeDS = nP >> BW64;
 	if (nP % W64)
@@ -1549,11 +1267,6 @@ void RMQRMM64::loadDS(char *fileName){
 	is.read((char*)TMinB, sizeDS*sizeof(ulong));
 	sizeRMM += sizeDS*sizeof(ulong);
 	if(TRACE) cout << " .- TMinB[] " << sizeDS*sizeof(sizeDS) << " Bytes" << endl;
-
-	LastNode = new ulong[h];
-	is.read((char*)LastNode, h*sizeof(ulong));
-	sizeRMM += h*sizeof(ulong);
-	if(TRACE) cout << " .- LastNode[] " << h*sizeof(ulong) << " Bytes" << endl;
 
 	is.close();
 	cout << " Data Structure loaded !!" << endl;
@@ -1642,7 +1355,7 @@ RMQRMM64::~RMQRMM64() {
 	bitsRB = h = MAX_BCK = MAX_B = lgMAX_B = MAX_SupB =
 	lgMAX_SupB = lgMIN_BCK = MIN_BCK = sizeRMM = 0;
 
-	delete [] LastNode;
+	//delete [] LastNode;
 	delete [] Bkwd_MinIN;
 	delete [] TSBlock;
 	delete [] TRBlock;
@@ -1761,68 +1474,6 @@ void RMQRMM64::test_sumAtPos(){
 		}
 	}
 	cout << "  test_sumAtPos OK !!" << endl;
-}
-
-void RMQRMM64::test_bwd_search(){
-	ulong i, j, pos;
-	long int sum, r, d, tar;
-
-	/*tar = d = 1;
-	j = 8;
-	for (sum=0, r=j; r>=0; r--){
-		if(readBit64(P, r)){
-			sum++;
-			if (sum == d)
-				break;
-		}else
-			sum--;
-	}
-	if (bwd_search(j, &tar, &pos))
-		cout << "bwd_search(" << j << ", " << d << ") = " << pos << endl;
-	else
-		cout << "bwd_search(" << j << ", " << d << ") NOT FOUND" << endl;
-	cout << "TRUE sum bwd_search(" << j << ", " << d << ") = " << r << endl;
-	exit(0);*/
-
-
-	cout << "RMQRMM64::test_bwd_search..." << endl;
-	for (d=1; d<15; d++){
-		for (i=1; i<TEST; i++){
-			j = (rand() % (nP-1));
-			for (sum=0, r=j; r>=0; r--){
-				if(readBit64(P, r)){
-					sum++;
-					if (sum == d)
-						break;
-				}else
-					sum--;
-			}
-
-			//if (TRACE) cout << "bwd_search(" << j << ", " << d << ")" << endl;
-			tar = d;
-			if (bwd_search(j, &tar, &pos)){
-				if (r<0){
-					cout << "bwd_search(" << j << ", " << d << ")" << endl;
-					cout << "ERROR !! pos = " << pos << " and NOT FOUND" << endl;
-					exit(1);
-				}
-				if ((long int)pos != r){
-					cout << "bwd_search(" << j << ", " << d << ")" << endl;
-					cout << "ERROR !! pos = " << pos << " != r = " << r << endl;
-					exit(1);
-				}
-				//if (TRACE) cout << " = " << pos << endl;
-			}else{
-				if (r >= 0){
-					cout << "bwd_search(" << j << ", " << d << ")" << endl;
-					cout << "ERROR !! bwd_search is FALSE and FOUND in r = " << r << endl;
-					exit(1);
-				}
-				//if (TRACE)	cout << " NOT FOUND" << endl;
-			}
-		}
-	}
-	cout << "  test_bwd_search OK !!" << endl;
 }
 
 void RMQRMM64::test_rmqi(){

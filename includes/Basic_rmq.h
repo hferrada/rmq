@@ -11,8 +11,7 @@
 #include <sys/time.h>
 #include <dirent.h>
 
-// namespace of Document Retrieval Framework
-namespace drf64 {
+namespace rmqrmm {
 	#ifndef uchar // 1 byte
 	#define uchar unsigned char
 	#endif
@@ -81,8 +80,6 @@ namespace drf64 {
 	uint popcount_Rank32(uint x);
 	uint popcount_Rank64(ulong x);
 
-//	void stringConvertToChar(string& str,char arr[]);
-
-} /* namespace drf64 */
+} /* namespace rmqrmm */
 
 #endif /* BASIC_DRF_H_ */
