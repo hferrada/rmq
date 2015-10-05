@@ -27,15 +27,18 @@ Make:
 Compile:
 	To use the library you must compile your program linking 'rmqrmm.a' and include
 	the folder "includes/RMQRMM64.h" in your sorce code.
-	For example, compiling the file test.cpp included here:
-		g++ test.cpp -o myRMQ -O3 rmqrmm.a 
-		or simply run the command 'make test'. it will create the binary 'myRMQ'.
-	This binary have to recieve two parameter: 
-		1- n: the length of random sequence 
-		2- rmqFile: the file (the path will be included) to store the data structure 
-		in order that you can load this later.
-	For example, this line execute the code for n=10^6 and store the data in './rmqFile.rmq':
-		./myRMQ 1000000 rmqFile.rmq
+	For example, compiling the file rmqrmmBP.cpp included here:<br />
+	g++ rmqrmmBP.cpp -o rmqrmmBP -O3 rmqrmm.a or simply run the command 'make test'. it will create the binary 'rmqrmmBP'. This binary have to recieve 7 parameter:<br />
+1.- n: the length of random sequence.<br />
+2.- 0/1: to load from a file(0) or create(1) the complete structure.<br />
+3.- saveLoadFile: the file (the path will be included) to store the data structure in order that you can load this later.<br />
+4.- repetitions: number of repetitions for experiments.<br />
+5.- pseudoSorted: 1 indicated that the input array will be encrease pseudo-sorted.<br />
+6.- RandomWeight: if the file is in mode pseudo-sorted, then A[i] will be a arondom value in the range [i-weight, i+weight].<br />
+7.- resultsFile: the file to store the esperiments's results.<br />
+
+For example, this line execute the code for n=10^4, stores the data in './rmqrmmBP-data.rmq' and the results in rmqrmmBP-Ramdom.txt:<br />
+./rmqrmmBP 10000 1 rmqrmmBP-data.rmq 2000000 0 10000 rmqrmmBP-Ramdom.txt
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
