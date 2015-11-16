@@ -9,7 +9,7 @@
 
 bool RMQRMM64::TRACE = false;
 bool RMQRMM64::RUNTEST = false;
-uint RMQRMM64::TEST = 1000;
+uint RMQRMM64::TEST = 10000;
 
 RMQRMM64::RMQRMM64(char *fileName){
 	loadDS(fileName);
@@ -316,7 +316,7 @@ void RMQRMM64::createTables(){
 	long int sum, sumBlock;
 	int Min;
 	lenSB = (nP/Srmq)/SuBrmq + 1;
-	bitsSuB = Srmq*SuBrmq;
+	//bitsSuB = Srmq*SuBrmq;
 	ulong *AuxTSBlock = new ulong[lenSB];
 
 	TRBlock = new char[lenSB];
@@ -379,10 +379,10 @@ void RMQRMM64::createTables(){
 		}
 	}
 
-	if((Srmq+(lenSB-1)*bitsSuB-1)<nP){
+	if((Srmq+((lenSB-1)<<bitsSuB)-1)<nP){
 		rb = sumBlock = 0;
 		for (j=0; j<N8Srmq; j++){
-			segment = (P[(jR*bitsSuB+BSrmq*j)/W64] & RMMMasks[rb]) >> (W64m8-BSrmq*rb);
+			segment = (P[((jR<<bitsSuB)+BSrmq*j)/W64] & RMMMasks[rb]) >> (W64m8-BSrmq*rb);
 			sumBlock += T_SUM_BLOCK[segment];
 			if (rb == N8W64-1) rb=0;
 			else rb++;
@@ -441,10 +441,11 @@ void RMQRMM64::createTables(){
 		}
 		MAX_B = maxMin;
 		lgMAX_SupB = ceilingLog64(MAX_SupB+1, 2);		// include one bit for sign
-	}else{
+	}else
 		MAX_B = 0;
+
+	if(!lgMAX_SupB)
 		lgMAX_SupB = 1;
-	}
 
 	if(MAX_B == 0)
 		lgMAX_B = 1;
@@ -512,31 +513,30 @@ void RMQRMM64::createTables(){
 
 // for 0 <= i < n
 ulong RMQRMM64::binRank_1(ulong i){
-	long int sum = sumAtPos(i);
-	return (sum+i+1)>>1;
+	return (sumAtPos(i)+i+1)>>1;
 }
 
 ulong RMQRMM64::binSelect_1(ulong i){
 	ulong blk, blk2, rank_B, raAux, q, rb, curr;
 
 	// search on super blocks...
-	blk = (i/bitsSuB)<<1;  // proportional search considering that it is a sequence balanced of 1's and 0's
+	blk = (i>>bitsSuB)<<1;  // proportional search considering that it is a sequence balanced of 1's and 0's
 	if (blk){
-		raAux = (blk*bitsSuB + getNum64(TSBlock, blk*lgMAX_SupB, lgMAX_SupB))>>1;
+		raAux = (blk<<bitsSuB + getNum64(TSBlock, blk*lgMAX_SupB, lgMAX_SupB))>>1;
 		if(raAux<i){
 			rank_B = raAux;
 			blk2 = blk+1;
-			raAux = (blk2*bitsSuB + getNum64(TSBlock, blk2*lgMAX_SupB, lgMAX_SupB))>>1;
+			raAux = (blk2<<bitsSuB + getNum64(TSBlock, blk2*lgMAX_SupB, lgMAX_SupB))>>1;
 			while(raAux<i){
 				rank_B = raAux;
 				blk = blk2;
 				blk2++;
-				raAux = (blk2*bitsSuB + getNum64(TSBlock, blk2*lgMAX_SupB, lgMAX_SupB))>>1;
+				raAux = (blk2<<bitsSuB + getNum64(TSBlock, blk2*lgMAX_SupB, lgMAX_SupB))>>1;
 			}
 		}else{
 			while(raAux >= i){		// I exceeded! come back...
 				blk--;
-				raAux = (blk*bitsSuB + getNum64(TSBlock, blk*lgMAX_SupB, lgMAX_SupB))>>1;
+				raAux = (blk<<bitsSuB + getNum64(TSBlock, blk*lgMAX_SupB, lgMAX_SupB))>>1;
 			}
 			rank_B = raAux;
 		}
@@ -600,8 +600,8 @@ ulong RMQRMM64::rank_1(ulong i){
 		if (nBin-1 == i) return rank1_Bin;
 		if(i >= nP-1) return nP>>1;
 
-		ulong blk=i/bitsSuB;
-		ulong x = blk*bitsSuB;
+		ulong blk=i>>bitsSuB;
+		ulong x = blk<<bitsSuB;
 		ulong rank = (x + getNum64(TSBlock, blk*lgMAX_SupB, lgMAX_SupB))>>1;
 		if((i-x) > Srmq){
 			if(readBit64(Bfull, blk)){
@@ -631,7 +631,149 @@ ulong RMQRMM64::rank_1(ulong i){
 	}
 }
 
+ulong RMQRMM64::select_1_new(ulong i){
+	ulong nxt, curr=0, pos, l=0, r, m, ones=0;
+
+	if (lenSB>1){
+		r=lenSB;
+		while (l<=r){
+			m = l+((r-l)>>1);
+			nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+			while (nxt<i){
+				ones = nxt;
+				curr = m;
+				if (l<r){
+					l = m+1;
+					m = l+((r-l)>>1);
+					nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				}else
+					break;
+			}
+			r = m-1;
+			if (l<=r){
+				m = l+((r-l)>>1);
+				nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				while (nxt>i && l<m){
+					r = m-1;
+					m = l+((r-l)>>1);
+					nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				}
+				if(nxt<i){
+					ones = nxt;
+					curr = m;
+				}
+				l = m+1;
+			}else
+				break;
+		}
+
+
+		if(readBit64(Bfull, curr)){
+			if(TRBlock[m])
+				nxt = ones+Srmq;
+			else
+				nxt = ones;
+		}else
+			nxt = ones+SrmqM+TRBlock[curr];
+		curr = (curr<<bitsSuB)+BrmqMOne;
+		if (nxt < i){
+			ones = nxt;
+			curr += Srmq;
+		}
+	}else
+		curr = BrmqMOne;
+
+	r = (P[curr>>BW64] & RMMMasks[0]) >> W64m8;
+	nxt = ones+__popcount_tab[r];
+	for(l=1; nxt<i; l++){
+		if (l==N8W64)
+			l=0;
+		curr+=BSrmq;
+		r = (P[curr>>BW64] & RMMMasks[l]) >> (W64m8-BSrmq*l);
+		nxt += __popcount_tab[r];
+	}
+	ones = nxt-__popcount_tab[r];
+	pos=curr-BrmqMOne;
+	for (; ones<i; pos++){
+		if (readBit64(P, pos))
+			ones++;
+	}
+
+	return pos-1;
+}
+
 ulong RMQRMM64::select_1(ulong i){
+	ulong nxt, curr=0, l=0, r, m, ones=0;
+
+	if (i <= rank1_Bin && lenSB>1){
+		r=lenSB;
+		while (l<=r){
+			m = l+((r-l)>>1);
+			nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+			while (nxt<i){
+				ones = nxt;
+				curr = m;
+				if (l<r){
+					l = m+1;
+					m = l+((r-l)>>1);
+					nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				}else
+					break;
+			}
+			r = m-1;
+			if (l<=r){
+				m = l+((r-l)>>1);
+				nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				while (nxt>i && l<m){
+					r = m-1;
+					m = l+((r-l)>>1);
+					nxt = ((m<<bitsSuB)+getNum64(TSBlock, m*lgMAX_SupB, lgMAX_SupB))>>1;
+				}
+				if(nxt<i){
+					ones = nxt;
+					curr = m;
+				}
+				l = m+1;
+			}else
+				break;
+		}
+
+		if(readBit64(Bfull, curr)){
+			if(TRBlock[m])
+				nxt = ones+Srmq;
+			else
+				nxt = ones;
+		}else
+			nxt = ones+SrmqM+TRBlock[curr];
+		curr = (curr<<bitsSuB)+BrmqMOne;
+		if (nxt < i){
+			ones = nxt;
+			curr += Srmq;
+		}
+	}else{
+		curr = nBin+BrmqMOne;
+		ones = rank1_Bin;
+	}
+	r = (P[curr>>BW64] & RMMMasks[0]) >> W64m8;
+	ones+=__popcount_tab[r];
+	for(l=1; ones<i; l++){
+		if (l==N8W64)
+			l=0;
+		curr+=BSrmq;
+		r = (P[curr>>BW64] & RMMMasks[l]) >> (W64m8-BSrmq*l);
+		ones += __popcount_tab[r];
+	}
+	ones-=__popcount_tab[r];
+	curr-=BrmqMOne;
+	for (; ones<i; curr++){
+		if (readBit64(P, curr))
+			ones++;
+	}
+
+	return curr-1;
+}
+
+ulong RMQRMM64::select_1_old(ulong i){
 	ulong pos = 0;
 
 	if(i <= rank1_Bin)
@@ -1077,8 +1219,6 @@ void RMQRMM64::saveDS(char *fileName){
 		cout << "firstLeaf " << firstLeaf << endl;
 		cout << "lenSB " << lenSB << endl;
 		cout << "lenLB " << lenLB << endl;
-		cout << "bitsSuB " << bitsSuB << endl;
-		cout << "bitsRB " << bitsRB << endl;
 		cout << "h " << h << endl;
 		cout << "MAX_BCK " << MAX_BCK << endl;
 		cout << "MAX_B " << MAX_B << endl;
@@ -1100,8 +1240,6 @@ void RMQRMM64::saveDS(char *fileName){
 	os.write((const char*)&firstLeaf, sizeof(ulong));
 	os.write((const char*)&lenSB, sizeof(ulong));
 	os.write((const char*)&lenLB, sizeof(uint));
-	os.write((const char*)&bitsSuB, sizeof(uint));
-	os.write((const char*)&bitsRB, sizeof(uint));
 	os.write((const char*)&h, sizeof(uint));
 	os.write((const char*)&MAX_BCK, sizeof(uint));
 	os.write((const char*)&MAX_B, sizeof(uint));
@@ -1111,9 +1249,10 @@ void RMQRMM64::saveDS(char *fileName){
 	os.write((const char*)&lgMIN_BCK, sizeof(uint));
 	os.write((const char*)&MIN_BCK, sizeof(int));
 
-	ulong sizeDT = 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);
+	ulong sizeDT = 10*sizeof(ulong) + 9*sizeof(uint) + sizeof(int);
 	sizeDT +=  2*512 + 2048;											// size for T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[]
-	if(TRACE) cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeDT << " Bytes" << endl;
+	//if(TRACE)
+		cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeDT << " Bytes" << endl;
 
 	ulong size = nP >> BW64;
 	if (nP % W64)
@@ -1177,8 +1316,6 @@ void RMQRMM64::loadDS(char *fileName){
 	is.read((char*)&firstLeaf, sizeof(ulong));
 	is.read((char*)&lenSB, sizeof(ulong));
 	is.read((char*)&lenLB, sizeof(uint));
-	is.read((char*)&bitsSuB, sizeof(uint));
-	is.read((char*)&bitsRB, sizeof(uint));
 	is.read((char*)&h, sizeof(uint));
 	is.read((char*)&MAX_BCK, sizeof(uint));
 	is.read((char*)&MAX_B, sizeof(uint));
@@ -1201,8 +1338,6 @@ void RMQRMM64::loadDS(char *fileName){
 		cout << "firstLeaf " << firstLeaf << endl;
 		cout << "lenSB " << lenSB << endl;
 		cout << "lenLB " << lenLB << endl;
-		cout << "bitsSuB " << bitsSuB << endl;
-		cout << "bitsRB " << bitsRB << endl;
 		cout << "h " << h << endl;
 		cout << "MAX_BCK " << MAX_BCK << endl;
 		cout << "MAX_B " << MAX_B << endl;
@@ -1214,9 +1349,10 @@ void RMQRMM64::loadDS(char *fileName){
 	}
 
 	// size for variables
-	sizeRMM = 10*sizeof(ulong) + 10*sizeof(uint) + sizeof(int);
+	sizeRMM = 10*sizeof(ulong) + 9*sizeof(uint) + sizeof(int);
 	sizeRMM += 2*512 + 2048;											// size for T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[]
-	if(TRACE) cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeRMM << " Bytes" << endl;
+	//if(TRACE)
+	cout << " .- T_SUM_BLOCK[] + T_MIN_BCK[] + T_BCK_D[] + Variables " << sizeRMM << " Bytes" << endl;
 
 	ulong sizeDS = nP >> BW64;
 	if (nP % W64)
@@ -1351,8 +1487,8 @@ void RMQRMM64::printTree(){
 RMQRMM64::~RMQRMM64() {
 
 	nP = nW = rank1_Bin = nBin = cantN = cantIN = leaves =
-	leavesBottom = firstLeaf = lenSB = lenLB = bitsSuB =
-	bitsRB = h = MAX_BCK = MAX_B = lgMAX_B = MAX_SupB =
+	leavesBottom = firstLeaf = lenSB = lenLB =
+	h = MAX_BCK = MAX_B = lgMAX_B = MAX_SupB =
 	lgMAX_SupB = lgMIN_BCK = MIN_BCK = sizeRMM = 0;
 
 	//delete [] LastNode;
@@ -1414,7 +1550,7 @@ void RMQRMM64::test_select_1(){
 	ulong i, j, k, sum, pos;
 
 	cout << "RMQRMM64::test_select_1..." << endl;
-	/*i=223;
+	/*i=3902;
 	for (j=sum=0; sum<i; j++){
 		if(readBit64(P, j))
 			sum++;
@@ -1422,7 +1558,8 @@ void RMQRMM64::test_select_1(){
 	j--;
 	pos = select_1(i);
 	cout << "select_1(" << i <<") = " << pos << ", ? j=" << j << endl;
-	exit(0);*/
+	 */
+	//exit(0);
 
 	for (k=0; k<TEST; k++){
 		i = (rand() % ((nP>>1)-2)) + 1;
