@@ -133,23 +133,6 @@ int testRMQ(int argc, char *argv[]) {
 
 		ulong min, rmq_min, beg, end;
 
-		/*beg=92;
-		end=924;
-		for (min=beg, i=beg+1; i<=end; i++){
-			if (A[i] < A[min])
-				min = i;
-		}
-		rmq_min = rmq->queryRMQ(beg,end);
-		if (rmq_min < beg || rmq_min > end){
-			cout << "ERROR... rmq_min = " << rmq_min << " out of range [" << beg << " , " << end << " ]" << endl;
-			exit(1);
-		}else{
-			if (A[rmq_min] != A[min]){
-				cout << "ERROR... rmq(" << beg << " , " << end << " ) = " << rmq_min << " != " << min << endl;
-				exit(1);
-			}
-		}*/
-
 		if (RANDOM){
 			cout << "Random test O(N_REP)..." << endl;
 			for (uint t=0; t<N_REP; t++){
