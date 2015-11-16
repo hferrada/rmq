@@ -15,6 +15,7 @@ using namespace rmqrmm;
 #define Srmq 256	// size of blocks (s bits each one), (power of 2 >= W)
 #define PotSrmq 8	// power for block = log(Srmq)
 #define SrmqD 512	// 2*Srmq
+#define bitsSuB 9	// log(SrmqD)
 #define SrmqM 128	// Srmq/2;
 #define N8Srmq 32 	// Srmq/8;
 #define SuBrmq 2	// number of leaves for each super block (power of 2 > RB)
@@ -113,7 +114,6 @@ private:
 							// 'n - nBin' is the number of bits that must be considered as a single last block of length 'n - nBin'
 
 	uint lenLB;				// length of lastBlock (number of bits)
-	uint bitsSuB, bitsRB;	// by default bitsSuB=256 and bitsRB=128
 	uint h;					// nim-max tree's height
 
 	ulong cantN;			// total nodes = leaves + cantIN
@@ -166,6 +166,8 @@ public:
 	ulong rank_1(ulong i);
 	void test_rank_1();
 
+	ulong select_1_old(ulong i);
+	ulong select_1_new(ulong i);
 	ulong select_1(ulong i);
 	void test_select_1();
 
