@@ -42,11 +42,13 @@ For example, this line execute the code for n=10^4, stores the data in './rmqrmm
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
-	references include the two papers above. Later, it will appear another 
-	publication to replace these ones.
+	references include the papers [3] above please. 
 
 [1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for
 range minimum queries on static arrays. SIAM Journal on Computing, 40(2):465–492, 2011.
 
 [2]. K. Sadakane and G. Navarro. Fully-Functional Static and Dynamic Succinct Trees. 
 ACM Transactions on Algorithms 10(3):article 16, 2014
+
+[3]. H. Ferrada and G. Navarro. Improved Range Minimum Queries.
+To appear in Proc. 26th Data Compression Conference (DCC), 2016.
