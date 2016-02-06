@@ -35,7 +35,7 @@ Compile:
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
-	references include the reference [3].
+	references, please you include the reference [3].
 
 [1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for range minimum 
 queries on static arrays. SIAM '11.
