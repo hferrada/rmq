@@ -239,6 +239,7 @@ void RMQRMM64::createMinMaxTree(){
 		cout << endl;
 	}
 
+	MIN_BCK = 0;
 	if (leaves>0){
 		ulong segment;
 		long int currSumBck;
