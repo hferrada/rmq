@@ -35,11 +35,12 @@ Compile:
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
-	references include the two papers above. Later, it will appear another 
-	publication to replace these ones.
+	references include the reference [3].
 
 [1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for range minimum 
 queries on static arrays. SIAM '11.
 
 [2]. K. Sadakane and G. Navarro. Fully-functional succinct trees. In Proceedings of 
 the Twenty-First Annual ACM-SIAM Symposium on Discrete Algorithms, SODA '10.
+
+[3]. H. Ferrada and G. Navarro. Improved Range Minimum Queries. To appear in Proc. 26th Data Compression Conference (DCC), 2016.
