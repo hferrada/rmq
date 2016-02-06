@@ -42,7 +42,7 @@ For example, this line execute the code for n=10^4, stores the data in './rmqrmm
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
-	references include the papers [3] above please. 
+	references please you include the reference [3]. 
 
 [1]. J. Fischer and V. Heun. Space-efficient preprocessing schemes for
 range minimum queries on static arrays. SIAM Journal on Computing, 40(2):465–492, 2011.
