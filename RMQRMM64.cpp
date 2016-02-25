@@ -442,11 +442,10 @@ void RMQRMM64::createTables(){
 		}
 		MAX_B = maxMin;
 		lgMAX_SupB = ceilingLog64(MAX_SupB+1, 2);		// include one bit for sign
-	}else
+	}else{
 		MAX_B = 0;
-
-	if(!lgMAX_SupB)
 		lgMAX_SupB = 1;
+	}
 
 	if(MAX_B == 0)
 		lgMAX_B = 1;
