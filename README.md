@@ -40,6 +40,14 @@ Compile:
 For example, this line execute the code for n=10^4, stores the data in './rmqrmmBP-data.rmq' and the results in rmqrmmBP-Ramdom.txt:<br />
 ./rmqrmmBP 10000 1 rmqrmmBP-data.rmq 2000000 0 10000 rmqrmmBP-Ramdom.txt
 
+
+Note about BP-construction:
+
+The current code included in this library computes the BP representation of the isomorphism tree of Fisher and Heum in $O(l\log n)$ average time.<br />
+For the worse case, when the array is totally ordered in decreasing order, it requires of $O(n^2)$ time.<br />
+The extra space used is linear in words (i.e., $n\log n$ bits).<br />
+However, it is possible to build this tree using only $O(n)$ additional bits, but the time becomes $O(n^2)$ for all case.<br />
+
 References:
 	Please, if you want to include this tool as part of your experiments, in your
 	references please you include the reference [3]. 
