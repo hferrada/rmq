@@ -35,12 +35,10 @@ Compile:
 
 Note about BP-construction:
 
-The current code included in this library computes the BP representation of the isomorphism tree of 
-Fisher and Heum in $O(n \log n)$ average time.
-For the worse case, when the array is totally ordered in decreasing order, it requires of $O(n^2)$ time.
+The current code included in this library computes the BP representation of the isomorphism tree of Fisher and Heum in 
+$O(n)$ time.
 The extra space used is linear in words (i.e., $n \log n$ bits).
-However, it is possible to build this tree using only $O(n)$ additional bits, but the time becomes 
-$O(n^2)$ for all case.
+However, it could easily be reduced to $O(h)$ words as Fisher and Heum porposed, where $h$ is the height of the tree, but the time becomes $O(n^2)$ for all case.
 
 References:
 	Please, if you want to include this tool as part of your experiments, in your
