@@ -1,4 +1,4 @@
-rmq library
+rmq library. (DCC'2016 version)
 ===========
 
 This code creates a data structure to compute, in constant time, the RMQ(i,j) on an array 

@@ -1,3 +1,5 @@
+DCC'2016 Version...
+
 Authors: 
 	Hector Ferrada and Gonzalo Navarro
 	hferrada@dcc.uchile.cl, gnavarro@dcc.uchile.cl
