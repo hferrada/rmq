@@ -10,10 +10,10 @@ RMQRMM64.o: RMQRMM64.cpp
 	$(CC) $(CFLAGS) -c RMQRMM64.cpp
 
 index: Basic_rmq.o RMQRMM64.o
-	ar rc rmqrmm.a Basic_rmq.o RMQRMM64.o
+	ar rc rmqrmmBP.a Basic_rmq.o RMQRMM64.o
 
 test: 
-	@$(CC) $(CFLAGS) rmqrmmBP.cpp -o myRMQ rmqrmm.a 
+	@$(CC) $(CFLAGS) rmqrmmBP.cpp -o rmqrmmBP rmqrmmBP.a 
 
 clean:
 	-rm *~ *.o *.bak 
