@@ -9,7 +9,7 @@
 
 bool RMQRMM64::TRACE = false;
 bool RMQRMM64::RUNTEST = false;
-bool RMQRMM64::SHOW_SIZE = true;
+bool RMQRMM64::SHOW_SIZE = false;
 uint RMQRMM64::TEST = 100000;
 
 RMQRMM64::RMQRMM64(char *fileName){
@@ -52,7 +52,7 @@ void RMQRMM64::init(ulong len) {
 		lenP++;
 	P = new ulong[lenP];
 	sizeRMM += lenP*sizeof(ulong);
-	cout << "nP " << nP << endl;
+	//cout << "nP " << nP << endl;
 	if (TRACE || SHOW_SIZE) cout << " ** size of topology " << lenP*sizeof(ulong) << " Bytes" << endl;
 }
 
@@ -385,11 +385,11 @@ void RMQRMM64::createMinMaxTree(){
 	}
 
 	// Create arrays of excess in blocks...
-	cout << "Creating arrays of excess in blocks..." << endl;
+	//cout << "Creating arrays of excess in blocks..." << endl;
 	createTables();
 
 	// Create min - max relatives values to each internal node.
-	cout << "Createting min - max relatives values to each internal node..." << endl;
+	//cout << "Createting min - max relatives values to each internal node..." << endl;
 
 	if (leaves){
 		//cout << "Creating auxL[] and auxR[]... " << 2*cantN*sizeof(ulong) << " Bytes" << endl;
@@ -509,7 +509,7 @@ void RMQRMM64::createMinMaxTree(){
 		sizeDS = cantIN*lgBkM/W64;
 		if ((cantIN*lgBkM)%W64)
 			sizeDS++;
-		cout << "Creating BkM[]... " << sizeDS*sizeof(ulong) << " Bytes" << endl;
+		//cout << "Creating BkM[]... " << sizeDS*sizeof(ulong) << " Bytes" << endl;
 		BkM = new ulong[sizeDS];
 		sizeDS = sizeDS*sizeof(ulong);
 		sizeRMM += sizeDS;
@@ -519,15 +519,15 @@ void RMQRMM64::createMinMaxTree(){
 			setNum64(BkM, cMIN_BCK, lgBkM, Aux_BkM[i]);
 			cMIN_BCK += lgBkM;
 		}
-		cout << "Deleting Aux_BkM[]..." << endl;
+		//cout << "Deleting Aux_BkM[]..." << endl;
 		delete [] Aux_BkM;
 	}else
 		lgBkM=sizeDS=0;
 
-	if (TRACE || SHOW_SIZE){
+	if (TRACE || SHOW_SIZE)
 		cout << " ** size of BkM[] " << sizeDS << " Bytes" << endl;
-		cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
-	}
+	cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
+	
 
 	if (TRACE){
 		cout << "MIN_BCK " << MIN_BCK << ", lgBkM " << lgBkM << endl;
@@ -554,9 +554,9 @@ void RMQRMM64::createTables(){
 	long int semiSumBlock, Min, auxMin;
 
 	nBLK = nP/BLK;
-	cout << "nBLK " << nBLK << endl;
+	//cout << "nBLK " << nBLK << endl;
 	lenSS = (nP/2)/SS+1;
-	cout << "lenSS " << lenSS << endl;
+	//cout << "lenSS " << lenSS << endl;
 	posBLK = semiSum = MAX_B = MAX_SumB = 0;
 
 	// here.... always sum >= 0, because is a BP sequence
