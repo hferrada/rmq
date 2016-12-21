@@ -1535,8 +1535,8 @@ void RMQRMM64::saveDS(char *fileName){
 	}else
 		if(TRACE) cout << " .- BkM[] 0 Bytes" << endl;
 
-	size = nBLK*lg_SumB/W64;
-	if ((nBLK*lg_SumB)%W64)
+	size = (nBLK+1)*lg_SumB/W64;
+	if (((nBLK+1)*lg_SumB)%W64)
 		size++;
 	os.write((const char*)TSumB, size*sizeof(ulong));			// save TSumB[]
 	sizeDT += size*sizeof(ulong);
@@ -1552,9 +1552,9 @@ void RMQRMM64::saveDS(char *fileName){
 	}else
 		if(TRACE) cout << " .- TSS[] 0 Bytes" << endl;
 
-	if(nBLK){
-		size = nBLK*lg_MinB/W64;
-		if ((nBLK*lg_MinB)%W64)
+	if(nBLK && leaves){
+		size = leaves*lg_MinB/W64;
+		if ((leaves*lg_MinB)%W64)
 			size++;
 		os.write((const char*)TMinB, size*sizeof(ulong));		// save TMinB[]
 		sizeDT += size*sizeof(ulong);
@@ -1629,8 +1629,8 @@ void RMQRMM64::loadDS(char *fileName){
 	}else
 		if(TRACE) cout << " .- BkM[] 0 Bytes" << endl;
 
-	sizeDS = nBLK*lg_SumB/W64;
-	if ((nBLK*lg_SumB)%W64)
+	sizeDS = (nBLK+1)*lg_SumB/W64;
+	if (((nBLK+1)*lg_SumB)%W64)
 		sizeDS++;
 	TSumB = new ulong[sizeDS];
 	is.read((char*)TSumB, sizeDS*sizeof(ulong));
@@ -1648,9 +1648,9 @@ void RMQRMM64::loadDS(char *fileName){
 	}else
 		if(TRACE) cout << " .- TSS[] 0 Bytes" << endl;
 
-	if(nBLK){
-		sizeDS = nBLK*lg_MinB/W64;
-		if ((nBLK*lg_MinB)%W64)
+	if(nBLK && leaves){
+		sizeDS = leaves*lg_MinB/W64;
+		if ((leaves*lg_MinB)%W64)
 			sizeDS++;
 		TMinB = new ulong[sizeDS];
 		is.read((char*)TMinB, sizeDS*sizeof(ulong));
