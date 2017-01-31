@@ -1506,9 +1506,9 @@ void RMQRMM64::saveDS(char *fileName){
 	os.write((const char*)&leaves, sizeof(ulong));
 	os.write((const char*)&leavesBottom, sizeof(ulong));
 	os.write((const char*)&firstLeaf, sizeof(ulong));
+	os.write((const char*)&nBLK, sizeof(ulong));
 
 	os.write((const char*)&lenLast, sizeof(uint));
-	os.write((const char*)&nBLK, sizeof(uint));
 	os.write((const char*)&lenSS, sizeof(uint));
 	os.write((const char*)&lg_MinB, sizeof(uint));
 	os.write((const char*)&lg_SumB, sizeof(uint));
@@ -1578,9 +1578,9 @@ void RMQRMM64::loadDS(char *fileName){
 	is.read((char*)&leaves, sizeof(ulong));
 	is.read((char*)&leavesBottom, sizeof(ulong));
 	is.read((char*)&firstLeaf, sizeof(ulong));
+	is.read((char*)&nBLK, sizeof(ulong));
 
 	is.read((char*)&lenLast, sizeof(uint));
-	is.read((char*)&nBLK, sizeof(uint));
 	is.read((char*)&lenSS, sizeof(uint));
 	is.read((char*)&lg_MinB, sizeof(uint));
 	is.read((char*)&lg_SumB, sizeof(uint));
