@@ -114,13 +114,13 @@ RMQRMM64::RMQRMM64(ulong *A, uint bitsPC, ulong len, bool deleteA){
 	}
 
 	if(deleteA){
-		cout << " Deleting array A[] ... " << endl;
+		if(TRACE) cout << " Deleting array A[] ... " << endl;
 		delete [] A;
-		cout << " Array deleted ! " << endl;
+		if(TRACE) cout << " Array deleted ! " << endl;
 	}
 
 	if(pos != 2*(len+1)){
-		cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
+		if(TRACE) cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
 		exit(0);
 	}
 
@@ -178,7 +178,7 @@ RMQRMM64::RMQRMM64(short int *A, ulong len) {
 	}
 
 	if(pos != 2*(len+1)){
-		cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
+		if(TRACE) cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
 		exit(0);
 	}
 	if (TRACE){
@@ -235,7 +235,7 @@ RMQRMM64::RMQRMM64(int *A, ulong len) {
 	}
 
 	if(pos != 2*(len+1)){
-		cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
+		if(TRACE) cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
 		exit(0);
 	}
 	if (TRACE){
@@ -292,7 +292,7 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 	}
 
 	if(pos != 2*(len+1)){
-		cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
+		if(TRACE) cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
 		exit(0);
 	}
 	if (TRACE){
@@ -526,7 +526,7 @@ void RMQRMM64::createMinMaxTree(){
 
 	if (TRACE || SHOW_SIZE)
 		cout << " ** size of BkM[] " << sizeDS << " Bytes" << endl;
-	cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
+	if(TRACE) cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
 	
 
 	if (TRACE){
@@ -715,7 +715,7 @@ void RMQRMM64::test_sumAtPos(){
 	ulong k;
 	long int sum, sumPos;
 
-	cout << "RMQRMM64::test_sumAtPos..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_sumAtPos..." << endl;
 	/*k=128;
 	for (ulong j=sum=0; j<=k; j++){
 		if(readBit64(P, j))
@@ -739,11 +739,11 @@ void RMQRMM64::test_sumAtPos(){
 
 		sumPos = sumAtPos(k);
 		if (sum != sumPos){
-			cout << "ERROR !! sumAtPos(" << k << ") = " << sumPos << " != sum = " << sum << endl;
+			if(TRACE) cout << "ERROR !! sumAtPos(" << k << ") = " << sumPos << " != sum = " << sum << endl;
 			exit(1);
 		}
 	}
-	cout << "  test_sumAtPos OK !!" << endl;
+	if(TRACE) cout << "  test_sumAtPos OK !!" << endl;
 }
 
 
@@ -777,7 +777,7 @@ ulong RMQRMM64::rank_1(ulong i){
 void RMQRMM64::test_rank_1(){
 	long int sumR, rank;
 	ulong k;
-	cout << "RMQRMM64::test_rank_1..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_rank_1..." << endl;
 
 	/*k=1031;
 	sumR=0;
@@ -802,7 +802,7 @@ void RMQRMM64::test_rank_1(){
 			exit(1);
 		}
 	}
-	cout << "  test_rank_1 OK !!" << endl;
+	if(TRACE) cout << "  test_rank_1 OK !!" << endl;
 }
 
 
@@ -863,7 +863,7 @@ ulong RMQRMM64::select_1(ulong i){
 void RMQRMM64::test_select_1(){
 	ulong k, sumS, pos;
 
-	cout << "RMQRMM64::test_select_1..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_select_1..." << endl;
 	/*k=32834;
 	ulong j=0;
 	for (sumS=0; sumS<k; j++){
@@ -886,12 +886,12 @@ void RMQRMM64::test_select_1(){
 
 			pos = select_1(sumS);
 			if (pos != k){
-				cout << "ERROR !! select1(" << sumS << ") = " << pos << " != k = " << k << endl;
+				if(TRACE) cout << "ERROR !! select1(" << sumS << ") = " << pos << " != k = " << k << endl;
 				exit(1);
 			}
 		}
 	}
-	cout << "  test_select_1 OK !!" << endl;
+	if(TRACE) cout << "  test_select_1 OK !!" << endl;
 }
 
 
@@ -940,7 +940,7 @@ void RMQRMM64::test_positionMinblock(){
 	long int sum, Min, k, j;
 	ulong posMin;
 
-	cout << "RMQRMM64::test_positionMinblock()..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_positionMinblock()..." << endl;
 	for (ulong t=0; t<leaves; t++){
 		if (getNum64(TMinB, t*lg_MinB, lg_MinB) <= 0)
 			continue;
@@ -967,15 +967,15 @@ void RMQRMM64::test_positionMinblock(){
 
 			ulong position = positionMinblock(t);
 			if (position != posMin){
-				cout << "ERROR !!... positionMinblock(" << t << ") = " << position << " != " << posMin << endl;
-				cout << "minimum = " << Min << endl;
-				cout << "TMinB[t] = " << getNum64(TMinB, t*lg_MinB, lg_MinB) << endl;
+				if(TRACE) cout << "ERROR !!... positionMinblock(" << t << ") = " << position << " != " << posMin << endl;
+				if(TRACE) cout << "minimum = " << Min << endl;
+				if(TRACE) cout << "TMinB[t] = " << getNum64(TMinB, t*lg_MinB, lg_MinB) << endl;
 				exit(1);
 			}
 		}
 	}
 
-	cout << "  positionMinblock() OK !!" << endl;
+	if(TRACE) cout << "  positionMinblock() OK !!" << endl;
 }
 
 
@@ -1125,7 +1125,7 @@ void RMQRMM64::test_search_min_block(){
 
 	ulong TTEST = 1000;
 
-	cout << "RMQRMM64::test_search_min_block()..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_search_min_block()..." << endl;
 	for (ulong t=0; t<TTEST; t++){
 		i = 1+(rand() % (nP/2));
 		j = i+(rand()%(nP-i))-1;
@@ -1159,13 +1159,13 @@ void RMQRMM64::test_search_min_block(){
 		position=k;
 		search_min_block(i,k-1,&min, &curSum, &position);
 		if (position != posMin || min != Min){
-			cout << "ERROR !!... search_min_block(" << i << ", " << j << ") = " << position << " != " << posMin << endl;
-			cout << "minimum found = " << min << " =? " << Min << endl;
+			if(TRACE) cout << "ERROR !!... search_min_block(" << i << ", " << j << ") = " << position << " != " << posMin << endl;
+			if(TRACE) cout << "minimum found = " << min << " =? " << Min << endl;
 			exit(1);
 		}
 	}
 
-	cout << "  test_search_min_block() OK !!" << endl;
+	if(TRACE) cout << "  test_search_min_block() OK !!" << endl;
 }
 
 // return the position of the open parenthesis closet to the root between i and j
@@ -1416,7 +1416,7 @@ void RMQRMM64::test_rmqi(){
 	exit(0);*/
 
 
-	cout << "RMQRMM64::test_rmqi..." << endl;
+	if(TRACE) cout << "RMQRMM64::test_rmqi..." << endl;
 	i=0;
 	ulong sumTest = 1;
 	if(nP >= 10000)
@@ -1450,7 +1450,7 @@ void RMQRMM64::test_rmqi(){
 				//if (TRACE) cout << "rmqi(" << i << ", " << j << ") " << endl;
 				posRmqi = rmqi(i,j);
 				if (posRmqi != posMin){
-					cout << "ERROR !!... rmqi(" << i << ", " << j << ") = " << posRmqi << " != " << posMin << endl;
+					if(TRACE) cout << "ERROR !!... rmqi(" << i << ", " << j << ") = " << posRmqi << " != " << posMin << endl;
 					exit(1);
 				}
 				//if (TRACE) cout << "= " << posRmqi << endl;
@@ -1460,7 +1460,7 @@ void RMQRMM64::test_rmqi(){
 		i+=sumTest;
 	}
 
-	cout << "test_rmqi OK !!" << endl;
+	if(TRACE) cout << "test_rmqi OK !!" << endl;
 }
 
 // =================================================================================================================
@@ -1474,9 +1474,9 @@ uint RMQRMM64::getSize(){
 }
 
 void RMQRMM64::saveDS(char *fileName){
-	cout << "Save data structure in " << fileName << endl;
+	if(TRACE) cout << "Save data structure in " << fileName << endl;
 	ofstream os (fileName, ios::binary);
-	cout << "   Data structure size: " << sizeRMM << endl;
+	if(TRACE) cout << "   Data structure size: " << sizeRMM << endl;
 
 	if(TRACE){
 		cout << "Variables load: " << endl;
@@ -1563,11 +1563,11 @@ void RMQRMM64::saveDS(char *fileName){
 		if(TRACE) cout << " .- TMinB[] 0 Bytes" << endl;
 
 	os.close();
-	cout << "   Total bytes saved from data structure: " << sizeDT << endl;
+	if(TRACE) cout << "   Total bytes saved from data structure: " << sizeDT << endl;
 }
 
 void RMQRMM64::loadDS(char *fileName){
-	cout << " Load data structure from " << fileName << endl;
+	if(TRACE) cout << " Load data structure from " << fileName << endl;
 	ifstream is(fileName, ios::binary);
 
 	is.read((char*)&nP, sizeof(ulong));
@@ -1660,7 +1660,7 @@ void RMQRMM64::loadDS(char *fileName){
 		if(TRACE) cout << " .- TMinB[] 0 Bytes" << endl;
 
 	is.close();
-	cout << " Data Structure loaded !!" << endl;
+	if(TRACE) cout << " Data Structure loaded !!" << endl;
 }
 
 // *************************** PRINT THE TREE ************************************
@@ -1670,32 +1670,32 @@ void RMQRMM64::printTree(){
 	uint cMIN_BCK;
 	cMIN_BCK = 0;
 
-	cout << "Min-max Binary Tree...[min bck]i(sum)" << endl;
+	if(TRACE) cout << "Min-max Binary Tree...[min bck]i(sum)" << endl;
 	cant = 1;
 	for (acum=j=i=0; i<cantIN; i++, j++, acum++){
 		if (j==cant){
-			cout << endl;
+			if(TRACE) cout << endl;
 			j = acum = 0;
 			cant *= 2;
 		}
 		if (acum == 2){
-			cout << " | ";
+			if(TRACE) cout << " | ";
 			acum = 0;
 		}
 
 		mini = getNum64(BkM, cMIN_BCK, lgBkM);
-		cout << i << "_[" << mini << "]";
+		if(TRACE) cout << i << "_[" << mini << "]";
 		cMIN_BCK += lgBkM;
 	}
 
 	for (i=leavesBottom; i<leaves; i++, j++, acum++){
 		if (j==cant){
-			cout << endl;
+			if(TRACE) cout << endl;
 			j = acum = 0;
 			cant *= 2;
 		}
 		if (acum == 2){
-			cout << " | ";
+			if(TRACE) cout << " | ";
 			acum = 0;
 		}
 
@@ -1710,17 +1710,17 @@ void RMQRMM64::printTree(){
 			if (rb == 0) rb=N8W64-1;
 			else rb--;
 		}
-		cout << i << "_h[" << mini << "](" << currSum << ") ";
+		if(TRACE) cout << i << "_h[" << mini << "](" << currSum << ") ";
 	}
-	cout << endl;
+	if(TRACE) cout << endl;
 	for (i=0; i<leavesBottom; i++, j++, acum++){
 		if (j==cant){
-			cout << endl;
+			if(TRACE) cout << endl;
 			j = acum = 0;
 			cant *= 2;
 		}
 		if (acum == 2){
-			cout << " | ";
+			if(TRACE) cout << " | ";
 			acum = 0;
 		}
 		rb = 3;
@@ -1734,20 +1734,21 @@ void RMQRMM64::printTree(){
 			if (rb == 0) rb=N8W64-1;
 			else rb--;
 		}
-		cout << i << "_h[" << mini << "]"<< i << "(" << currSum << ") ";
+		if(TRACE) cout << i << "_h[" << mini << "]"<< i << "(" << currSum << ") ";
 	}
-	cout << endl;
+	if(TRACE) cout << endl;
 }
 
 RMQRMM64::~RMQRMM64() {
-	nP = nW = nBin = cantN = cantIN = leaves = 0;
-	leavesBottom = firstLeaf = nBLK = lenLast = 0;
-	lg_MinB = lg_SumB = lg_SS = lgBkM = sizeRMM = 0;
+    /*if(lenSS) delete [] TSS;
+    if(nBLK) delete [] TMinB;*/
+    delete [] TSumB;
+    if(cantIN) delete [] BkM;
+    if(nW) delete [] P;
 
-	delete [] TSumB;
-	if(cantIN) delete [] BkM;
-	if(lenSS) delete [] TSS;
-	if(nBLK) delete [] TMinB;
+    nP = nW = nBin = cantN = cantIN = leaves = 0;
+    leavesBottom = firstLeaf = nBLK = lenLast = 0;
+    lg_MinB = lg_SumB = lg_SS = lgBkM = sizeRMM = 0;
 
-	cout << " ~ RMQRMM64 destroyed !!" << endl;
+	if(TRACE) cout << " ~ RMQRMM64 destroyed !!" << endl;
 }
