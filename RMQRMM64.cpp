@@ -1740,11 +1740,8 @@ void RMQRMM64::printTree(){
 }
 
 RMQRMM64::~RMQRMM64() {
-	nP = nW = nBin = cantN = cantIN = leaves = 0;
-	leavesBottom = firstLeaf = nBLK = lenLast = 0;
-	lg_MinB = lg_SumB = lg_SS = lgBkM = sizeRMM = 0;
-
 	delete [] TSumB;
+	if (nP) delete [] P;
 	if(cantIN) delete [] BkM;
 	if(lenSS) delete [] TSS;
 	if(nBLK) delete [] TMinB;
