@@ -2,7 +2,7 @@ rmq library
 ===========
 
 This code creates a data structure to compute, in constant time, the RMQ(i,j) on an array 
-of integers. The size for array is between 2.02n to 2.3n bits (depend on the 
+of integers. The size of the structure is between 2.02n to 2.3n bits (depend on the 
 configuration for block size and sampling for select_1).
 
 Authors: 
