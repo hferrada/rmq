@@ -26,8 +26,8 @@ using namespace rmqrmm;
 
 // ___________________________________________________
 // Standard Configuration !
-#define BLK 512		// size of blocks (BLK bits each one), (power of 2 >= W)
-#define SS 512		// select_1 sampling size. Power of 2
+#define BLK 256		// size of blocks (BLK bits each one), (power of 2 >= W)
+#define SS 256		// select_1 sampling size. Power of 2
 
 // ___________________________________________________
 // FIXIED VALUES:

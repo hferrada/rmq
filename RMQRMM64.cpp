@@ -295,7 +295,7 @@ RMQRMM64::RMQRMM64(long int *A, ulong len) {
 		cout << " ERROR. parentheses created = " << pos << " != " << 2*(len+1) << endl;
 		exit(0);
 	}
-	if (TRACE){
+	if (TRACE && false){
 		ulong lenP = nP >> BW64;
 		if (nP % W64)
 			lenP++;
@@ -348,10 +348,10 @@ void RMQRMM64::createMinMaxTree(){
 		cout << "Create RangeMinMaxTree_Bin with length N = 2n = " << nP << ", nBin: " << nBin << ", nW: " << nW << endl;
 
 	this->leaves = nBin/BLK;
-	uint h = ceilingLog64(this->leaves, 2);
+	uint h = 1 + (uint)(log(leaves)/log(2));
 	this->firstLeaf = (ulong)pow(2, (double)h) - 1;	// the left-most leaf
 
-	if (TRACE){
+	if (TRACE  && false){
 		ulong i;
 		cout << "___________________________________________________________" << endl;
 		cout << "P_bin :";
@@ -502,10 +502,8 @@ void RMQRMM64::createMinMaxTree(){
 		delete [] auxR;
 	}
 
-	lgBkM = ceilingLog64(MIN_BCK+1, 2);
+	lgBkM = 1 + (uint)(log(MIN_BCK)/log(2));
 	if(cantIN){
-		if (lgBkM==0)
-			lgBkM=1;
 		sizeDS = cantIN*lgBkM/W64;
 		if ((cantIN*lgBkM)%W64)
 			sizeDS++;
@@ -528,7 +526,6 @@ void RMQRMM64::createMinMaxTree(){
 		cout << " ** size of BkM[] " << sizeDS << " Bytes" << endl;
 	cout << " ** Total RMQRMM64 size: " << sizeRMM << " Bytes = " << (float)sizeRMM/(1024.0*1024.0) << " MB." << endl;
 	
-
 	if (TRACE){
 		cout << "MIN_BCK " << MIN_BCK << ", lgBkM " << lgBkM << endl;
 		if (leaves>0) printTree();
@@ -555,6 +552,7 @@ void RMQRMM64::createTables(){
 
 	nBLK = nP/BLK;
 	//cout << "nBLK " << nBLK << endl;
+
 	lenSS = (nP/2)/SS+1;
 	//cout << "lenSS " << lenSS << endl;
 	posBLK = semiSum = MAX_B = MAX_SumB = 0;
@@ -583,14 +581,10 @@ void RMQRMM64::createTables(){
 		posBLK += BLK;
 	}
 
-	if(MAX_B > 1) lg_MinB = ceilingLog64(MAX_B+1, 2);
-	else lg_MinB = 1;
-
-	if(MAX_SumB > 1) lg_SumB = ceilingLog64(MAX_SumB+1, 2);
-	else lg_SumB = 1;
-
-	if(nBLK>1) lg_SS = ceilingLog64(nBLK+1, 2);
-	else lg_SS = 1;
+	MAX_B++;
+	lg_MinB = 1 + (uint)(log(MAX_B)/log(2));
+	lg_SumB = 1 + (uint)(log(MAX_SumB)/log(2));
+	lg_SS = 1 + (uint)(log(nBLK)/log(2));
 
 	if (TRACE)
 		cout << "MAX_B " << MAX_B << ", lg_MinB " << lg_MinB  << ", MAX_SumB " << MAX_SumB << ", lg_SumB " << lg_SumB << ", lg_SS " << lg_SS << endl;
@@ -620,10 +614,13 @@ void RMQRMM64::createTables(){
 		cont = lenSS*lg_SS/W64;
 		if ((lenSS*lg_SS)%W64)
 			cont++;
+
 		TSS = new ulong[cont];
-		sizeDS = cont*sizeof(ulong);
+		cont *= sizeof(ulong);
+		sizeDS = cont;
 		sizeRMM += sizeDS;
 		if (TRACE || SHOW_SIZE) cout << " ** size of TSS[] " << sizeDS << " Bytes" << endl;
+		cont *= 8;
 	}else
 		if (TRACE || SHOW_SIZE) cout << " ** size of TSS[] 0 Bytes" << endl;
 
@@ -661,7 +658,7 @@ void RMQRMM64::createTables(){
 		jSS++;
 	}
 
-	if (TRACE){
+	if (TRACE  && false){
 		cout << endl << "TMinB[1.." <<nBLK<< "]... ";
 		for (i=0; i<nBLK; i++)
 			cout << getNum64(TMinB, i*lg_MinB, lg_MinB) << " ";
@@ -1567,8 +1564,8 @@ void RMQRMM64::saveDS(char *fileName){
 }
 
 void RMQRMM64::loadDS(char *fileName){
-	cout << " Load data structure from " << fileName << endl;
 	ifstream is(fileName, ios::binary);
+	cout << " Load data structure from " << fileName << endl;
 
 	is.read((char*)&nP, sizeof(ulong));
 	is.read((char*)&nW, sizeof(ulong));
