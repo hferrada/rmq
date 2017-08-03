@@ -348,8 +348,7 @@ void RMQRMM64::createMinMaxTree(){
 		cout << "Create RangeMinMaxTree_Bin with length N = 2n = " << nP << ", nBin: " << nBin << ", nW: " << nW << endl;
 
 	this->leaves = nBin/BLK;
-	uint h = 1 + (uint)(log(leaves)/log(2));
-	this->firstLeaf = (ulong)pow(2, (double)h) - 1;	// the left-most leaf
+	uint h = 0;
 
 	if (TRACE  && false){
 		ulong i;
@@ -366,20 +365,18 @@ void RMQRMM64::createMinMaxTree(){
 		cout << endl;
 	}
 
-	if (h>0){
+	if (leaves){
+		h = 1 + (uint)(log(leaves)/log(2));
 		groups = (ulong)pow(2, (double)h-1.0);	// number of nodes at level (h-1)
+		firstLeaf = (ulong)pow(2, (double)h) - 1;	// the left-most leaf
 		leavesBottom = (leaves - groups)<<1;
 		leavesUp = leaves - leavesBottom;
-	}else{
-		leavesBottom = leaves;
-		leavesUp = 0;
-	}
+		cantIN = firstLeaf - leavesUp;
+		cantN = cantIN + leaves;
+	}else
+		cantN = cantIN =firstLeaf = leavesBottom = leavesUp = 0;
 
-	firstLeaf = (ulong)pow(2, (double)h) - 1;
-	cantIN = firstLeaf - leavesUp;
-	cantN = cantIN + leaves;
-
-	if (TRACE && leaves>0){
+	if (TRACE && leaves){
 		cout << "leaves: " << leaves << ", leaves Up: " << leavesUp << ", leaves Bottom: " << leavesBottom << endl;
 		cout << "internal nodes: " << cantIN << ", first leaf: " << firstLeaf << ", total nodes: " << cantN << endl;
 	}
