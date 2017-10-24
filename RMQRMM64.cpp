@@ -597,8 +597,8 @@ void RMQRMM64::createTables(){
 	setNum64(TSumB, 0, lg_SumB, 0);
 
 	if(nBLK){
-		cont = leaves*lg_MinB/W64;
-		if ((leaves*lg_MinB)%W64)
+		cont = nBLK*lg_MinB/W64;
+		if ((nBLK*lg_MinB)%W64)
 			cont++;
 		TMinB = new ulong[cont];
 		sizeDS = cont*sizeof(ulong);
@@ -1547,8 +1547,8 @@ void RMQRMM64::saveDS(char *fileName){
 		if(TRACE) cout << " .- TSS[] 0 Bytes" << endl;
 
 	if(nBLK && leaves){
-		size = leaves*lg_MinB/W64;
-		if ((leaves*lg_MinB)%W64)
+		size = nBLK*lg_MinB/W64;
+		if ((nBLK*lg_MinB)%W64)
 			size++;
 		os.write((const char*)TMinB, size*sizeof(ulong));		// save TMinB[]
 		sizeDT += size*sizeof(ulong);
@@ -1643,8 +1643,8 @@ void RMQRMM64::loadDS(char *fileName){
 		if(TRACE) cout << " .- TSS[] 0 Bytes" << endl;
 
 	if(nBLK && leaves){
-		sizeDS = leaves*lg_MinB/W64;
-		if ((leaves*lg_MinB)%W64)
+		sizeDS = nBLK*lg_MinB/W64;
+		if ((nBLK*lg_MinB)%W64)
 			sizeDS++;
 		TMinB = new ulong[sizeDS];
 		is.read((char*)TMinB, sizeDS*sizeof(ulong));
