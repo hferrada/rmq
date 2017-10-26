@@ -45,7 +45,7 @@ queries on static arrays. SIAM '11.
 [2]. K. Sadakane and G. Navarro. Fully-functional succinct trees. In Proceedings of 
 the Twenty-First Annual ACM-SIAM Symposium on Discrete Algorithms, SODA '10.
 
-[3]. H. Ferrada and G. Navarro. Improved Range Minimum Queries. To apperar in 
+[3]. H. Ferrada and G. Navarro. Improved Range Minimum Queries. In 
 Journal of Discrete Algorithms, JDA'17.
 
 [4]. H. Ferrada and G. Navarro. Improved Range Minimum Queries. In Proceedings of 
