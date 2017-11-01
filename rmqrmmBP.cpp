@@ -6,7 +6,7 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 // You can run this binary after to compile this with "make test", then you can call it with:
-//	./rmqrmmBP3.0 1000000 1 pathFileStructure.rmq 10000000 0 0 10000 fileResults.txt pathResult/ 0
+//	./rmqrmmBP 1000000 1 pathFileStructure.rmq 10000 0 0 10000 fileResults.txt pathResult/ 0
 //
 
 #include "includes/RMQRMM64.h"
