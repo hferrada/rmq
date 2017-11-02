@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-O9 -DNDEBUG
+CFLAGS=-std=c++11 -O3 -DNDEBUG -march=native
 
 all: index
 
