@@ -57,6 +57,9 @@ namespace rmqrmm {
 	// print the last cantBits of unisned int x
 	void printBitsNum(uint x, uint cantBits);
 
+	// print the last cantBits of unisned long int x
+	void printBitsNum64(ulong x, uint cantBits);
+
 	// print W64 bits of unsigned long int x
 	void printBitsUlong(ulong x);
 

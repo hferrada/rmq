@@ -13,9 +13,19 @@ namespace rmqrmm {
 
 	// print the last cantBits of unisned int x
 	void printBitsNum(uint x, uint cantBits){
-		uint cnt, mask = 1 << (cantBits-1);
+		uint mask = 1 << (cantBits-1);
 
-		for(cnt=1;cnt<=cantBits;++cnt){
+		for(uint cnt=1; cnt<=cantBits; ++cnt){
+			putchar(((x & mask) == 0) ? '0' : '1');
+			mask >>= 1;
+		}
+	}
+
+	// print the last cantBits of unisned long int x
+	void printBitsNum64(ulong x, uint cantBits){
+		ulong mask = 1 << (cantBits-1);
+
+		for(uint cnt=1; cnt<=cantBits; ++cnt){
 			putchar(((x & mask) == 0) ? '0' : '1');
 			mask >>= 1;
 		}
